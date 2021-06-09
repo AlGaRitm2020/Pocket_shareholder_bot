@@ -172,6 +172,7 @@ def create_new_card(update: Update, context: CallbackContext):
 
 
 def stream(update, context):
+
     is_answered = False
     stems = get_stems(update.message.text)
     if check_stems(stems, KeyWords.help):

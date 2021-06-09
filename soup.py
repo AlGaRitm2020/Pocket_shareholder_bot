@@ -16,3 +16,5 @@ def get_data():
             data.append([elem for i, elem in enumerate(tr.text.strip().split('\n')) if i not in black_list_of_indexes])
 
     return data
+
+
