@@ -27,7 +27,7 @@ def start(update: Update, context: CallbackContext):
 
 def most_profit(update: Update, context: CallbackContext):
     print(data)
-    most_profit_data = sorted(data, key= lambda x: x[7], reverse=True)
+    most_profit_data = sorted(data, key= lambda x: x[10], reverse=True)
     print(most_profit_data)
     for i in range(15):
         update.message.reply_text(f'{i + 1} "{most_profit_data[i][1]}" годовой рост: {most_profit_data[i][7]}')
