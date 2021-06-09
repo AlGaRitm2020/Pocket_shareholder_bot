@@ -25,15 +25,36 @@ def start(update: Update, context: CallbackContext):
     return 1
 
 
-def most_profit(update: Update, context: CallbackContext):
-    print(data)
-    most_profit_data = sorted(data, key=lambda x: x[16], reverse=True)
-    print(most_profit_data)
+def most_profit(update: Update, context: CallbackContext, period='12 month'):
+    """
+    Print most profit actives per 12 week/month/year/month
+    """
+    if period == '12 month':
+        sort_index = 16
+        grow_period = 'годовой'
+    elif period == 'year':
+        sort_index = 15
+        grow_period = 'с начала года'
+    elif period == 'month':
+        sort_index = 14
+        grow_period = 'месячный'
+    else:
+        sort_index = 13
+        grow_period = 'недельный'
+
+    most_profit_data = sorted(data, key=lambda x: x[sort_index], reverse=True)
     for i in range(15):
-        update.message.reply_text(f'{i + 1} "{most_profit_data[i][3]}" годовой рост: {most_profit_data[i][16]}')
+        (update.message.reply_text(f'{i + 1} "{most_profit_data[i][3]}" {grow_period} рост: {most_profit_data[i][sort_index]}'))
+
+
 
 
 def stream(update, context):
+    """
+    main handler for messages
+    checking keywords in message
+    """
+
     is_answered = False
     stems = get_stems(update.message.text)
     print(stems)
