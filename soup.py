@@ -14,7 +14,10 @@ def get_data():
     for i, tr in enumerate(tr_list):
         if 1 < i < 260:
             data.append([elem for i, elem in enumerate(tr.text.strip().split('\n')) if i not in black_list_of_indexes])
-
+    # for i, td in enumerate(data):
+    #     for j, elem in enumerate(td):
+    #         if j == 7:
+    #             data[i][j] = float(elem[:-1])
     return data
 
-
+pprint(get_data())
