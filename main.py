@@ -27,10 +27,10 @@ def start(update: Update, context: CallbackContext):
 
 def most_profit(update: Update, context: CallbackContext):
     print(data)
-    most_profit_data = sorted(data, key=lambda x: x[10], reverse=True)
+    most_profit_data = sorted(data, key=lambda x: x[16], reverse=True)
     print(most_profit_data)
     for i in range(15):
-        update.message.reply_text(f'{i + 1} "{most_profit_data[i][2]}" годовой рост: {most_profit_data[i][9]}')
+        update.message.reply_text(f'{i + 1} "{most_profit_data[i][3]}" годовой рост: {most_profit_data[i][16]}')
 
 
 def stream(update, context):
