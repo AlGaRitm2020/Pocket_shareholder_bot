@@ -179,8 +179,13 @@ def enter_min_volume(update: Update, context: CallbackContext):
         f"Какой максимальный объем акций должен быть у компании в которую вы будете инвестировать? (млн руб)")
     return 6
 
+
+def choice_result(update: Update, context: CallbackContext, summ, min_growth, max_growth, min_volume, max_volume):
+    update.message.reply_text(f"Choice result")
+
+
 def enter_max_volume(update: Update, context: CallbackContext):
-    global max_volume
+    global summ, max_volume, min_volume, max_growth, min_growth
     max_volume = update.message.text
     stems = get_stems(max_volume)
     if check_stems(stems, KeyWords.skip):
@@ -190,10 +195,7 @@ def enter_max_volume(update: Update, context: CallbackContext):
         update.message.reply_text(f"Максимальный объем должен быть в виде целого числа")
         return 6
 
-    update.message.reply_text(
-        f"Какой минимальный объем акций должен быть у компании в которую вы будете инвестировать? (млн руб)")
-    return 7
-
+    choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume)
 
 
 def show_bookmarks(update: Update, context: CallbackContext):
