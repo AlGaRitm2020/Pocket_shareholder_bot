@@ -19,12 +19,14 @@ from soup import get_data
 
 def start(update: Update, context: CallbackContext):
     update.message.reply_text('Добро пожаловать! \n' +
-                              'Я телеграм бот-помощник NLP-bank. Я могу показать информацию ' +
-                              'о банке, посмотреть баланс, перевести деньги, забокировать ' +
-                              'карту, написать в поддержку.')
-    update.message.reply_text('Для начала работы введите номер вашей карты')
+                              'Я телеграм бот-помощник Smart invest bot.'
+                              'Я могу выдавать вам информацию о акциях российский компаний '
+                              'и сортировать акции по доходности на разные временные интервалы и по объему.'
+                              'Кроме этого я могу искать акцию конкретной компании и сохранять ее в закладки.'
+                              )
 
-    return 1
+
+    return
 
 
 def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
@@ -46,9 +48,13 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
 
     most_profit_data = sorted(data.values(), key=lambda x: x[period], reverse=reverse)
     message = ''
+    if start_index + content_count_per_page > 250:
+        content_count_per_page = 250 - start_index
     for i in range(start_index, start_index + content_count_per_page):
         message += f'{i + 1} "{most_profit_data[i]["name"]}" {grow_period} рост: {most_profit_data[i][period]}\n'
 
+    global start_index_gl
+    start_index_gl += content_count_per_page
     update.message.reply_text(message)
 
 
@@ -200,9 +206,11 @@ def stream(update, context):
     reverse_gl = True
     if check_stems(stems, KeyWords.increase):
         reverse_gl = False
+
     if check_stems(stems, KeyWords.volume):
         start_index_gl = 0
         sort_by_volume(update, context, reverse=reverse_gl, start_index=start_index_gl)
+
     elif check_stems(stems, KeyWords.profit):
         start_index_gl = 0
         if check_stems(stems, KeyWords.week):
@@ -217,7 +225,7 @@ def stream(update, context):
         sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
                        start_index=start_index_gl)
     elif check_stems(stems, KeyWords.extra_content):
-        start_index_gl += content_count_per_page
+
         sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
                        start_index=start_index_gl)
 
@@ -254,11 +262,11 @@ def stream(update, context):
 def main() -> None:
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
-
+    dispatcher.add_handler(CommandHandler('start', start))
     dialog_choice = ConversationHandler(
-        entry_points=[CommandHandler('start_choice', start_choice)],
+        entry_points=[CommandHandler('start_choice', ask_about_sum)],
         states={
-            1: [MessageHandler(Filters.text, ask_about_sum)],
+            # 1: [MessageHandler(Filters.text, ask_about_sum)],
             2: [MessageHandler(Filters.text, enter_sum)],
             3: [MessageHandler(Filters.text, enter_min_growth)],
             4: [MessageHandler(Filters.text, enter_max_growth)],
