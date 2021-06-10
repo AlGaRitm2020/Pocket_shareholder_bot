@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from pprint import pprint
 from get_html import get_html
-import datetime
+
 
 def get_data():
     URL = 'https://smart-lab.ru/q/shares/'

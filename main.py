@@ -44,10 +44,11 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
         grow_period = 'недельный'
 
     most_profit_data = sorted(data.values(), key=lambda x: x[period], reverse=reverse)
-
+    message = ''
     for i in range(start_index, start_index + 15):
-        (update.message.reply_text(
-            f'{i + 1} "{most_profit_data[i]["name"]}" {grow_period} рост: {most_profit_data[i][period]}'))
+        message += f'{i + 1} "{most_profit_data[i]["name"]}" {grow_period} рост: {most_profit_data[i][period]}\n'
+
+    update.message.reply_text(message)
 
 
 def search_by_company_name(update: Update, context: CallbackContext, company_name):
@@ -91,7 +92,7 @@ def stream(update, context):
     """
 
     is_answered = False
-    content_count_per_page = 15
+    global content_count_per_page
     stems = get_stems(update.message.text)
     print(stems)
 
@@ -119,18 +120,19 @@ def stream(update, context):
                        start_index=start_index_gl)
 
     # searching by company name
-    if check_stems(stems, KeyWords.search):
+    elif check_stems(stems, KeyWords.search):
         if len(stems) == 2:
             for word in update.message.text.split():
                 if get_stems(word)[0] not in KeyWords.search:
                     search_by_company_name(update, context, word.upper())
 
     # refresh data
-    if check_stems(stems, KeyWords.refresh):
+    elif check_stems(stems, KeyWords.refresh):
         refresh_data(update, context)
 
 
 def main() -> None:
+
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
@@ -144,4 +146,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     data = get_data()
+    content_count_per_page = 15
     main()
