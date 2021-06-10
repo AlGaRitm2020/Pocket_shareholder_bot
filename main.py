@@ -94,11 +94,21 @@ def set_content_count_per_page(update: Update, context: CallbackContext, count):
 
 
 def start_choice(update: Update, context: CallbackContext):
+    return 1
+
+
+def ask_about_sum(update: Update, context: CallbackContext):
     update.message.reply_text(f"Какой сумму вы готовы инвестировать? (в рублях)")
-    return
+    return 2
 
 
-# def enter_sum(update: Update, context: CallbackContext):
+def enter_sum(update: Update, context: CallbackContext):
+    summ = update.message.text
+    print(summ)
+    if not summ.isdigit():
+        update.message.reply_text(f"Сумма должна быть в виде целого числа")
+        return 1
+    return 3
 
 
 def stream(update, context):
@@ -159,21 +169,22 @@ def main() -> None:
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
+
+
+    dialog_choice = ConversationHandler(
+        entry_points=[CommandHandler('start_choice', start_choice)],
+        states={
+            1: [MessageHandler(Filters.text, ask_about_sum)],
+            2: [MessageHandler(Filters.text, enter_sum)],
+
+        },
+        fallbacks=[MessageHandler(Filters.text, start)]
+    )
+
+    dispatcher.add_handler(dialog_choice)
+
     text_handler = MessageHandler(Filters.text, stream)
-
     dispatcher.add_handler(text_handler)
-
-    # dialog_choice = ConversationHandler(
-    #     entry_points=[CommandHandler('start_choice', start)],
-    #     states={
-    #         1: [MessageHandler(Filters.text, enter_pin_code)],
-    #         2: [MessageHandler(Filters.text, enter_cvv_code)],
-    #         3: [MessageHandler(Filters.text, finish_login)],
-    #     },
-    #     fallbacks=[MessageHandler(Filters.text, start)]
-    # )
-    #
-    # dispatcher.add_handler(dialog_choice)
 
     updater.start_polling()
     updater.idle()
