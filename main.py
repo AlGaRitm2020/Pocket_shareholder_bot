@@ -6,11 +6,6 @@ from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, \
     ConversationHandler
 
-# from nlp import get_stems, check_stems
-# from key_words import KeyWords
-# from pycbrf_test import get_currency
-
-
 from config import TOKEN
 from key_words import KeyWords
 from nlp import check_stems, get_stems
@@ -145,7 +140,7 @@ def enter_min_growth(update: Update, context: CallbackContext):
         min_growth = str(-100)
     elif not min_growth.isdigit():
         update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
-        return 1
+        return 3
 
     update.message.reply_text(
         f"Какой максимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
@@ -160,9 +155,9 @@ def enter_max_growth(update: Update, context: CallbackContext):
         max_growth = float('inf')
 
     elif not max_growth.isdigit():
-        min_growth = int(max_growth)
-        update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
-        return 2
+
+        update.message.reply_text(f"Максимальный годовой рост должен быть в виде целого числа")
+        return 4
 
     update.message.reply_text(
         f"Какой минимальный объем акций должен быть у компании в которую вы будете инвестировать? (млн руб)")
@@ -176,15 +171,28 @@ def enter_min_volume(update: Update, context: CallbackContext):
     if check_stems(stems, KeyWords.skip):
         min_volume = float('inf')
 
-    elif not max_growth.isdigit():
-        update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
-        return 2
+    elif not min_volume.isdigit():
+        update.message.reply_text(f"Минимальный объем должен быть в виде целого числа")
+        return 5
+
+    update.message.reply_text(
+        f"Какой максимальный объем акций должен быть у компании в которую вы будете инвестировать? (млн руб)")
+    return 6
+
+def enter_max_volume(update: Update, context: CallbackContext):
+    global max_volume
+    max_volume = update.message.text
+    stems = get_stems(max_volume)
+    if check_stems(stems, KeyWords.skip):
+        max_volume = float('inf')
+
+    elif not max_volume.isdigit():
+        update.message.reply_text(f"Максимальный объем должен быть в виде целого числа")
+        return 6
 
     update.message.reply_text(
         f"Какой минимальный объем акций должен быть у компании в которую вы будете инвестировать? (млн руб)")
-    return 5
-
-
+    return 7
 
 
 
@@ -288,6 +296,7 @@ def main() -> None:
             3: [MessageHandler(Filters.text, enter_min_growth)],
             4: [MessageHandler(Filters.text, enter_max_growth)],
             5: [MessageHandler(Filters.text, enter_min_volume)],
+            6: [MessageHandler(Filters.text, enter_max_volume)],
 
         },
         fallbacks=[MessageHandler(Filters.text, start)]
