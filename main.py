@@ -160,6 +160,14 @@ def show_bookmarks(update: Update, context: CallbackContext):
     update.message.reply_text(message)
 
 
+def delete_bookmark(update: Update, context: CallbackContext, bookmark):
+    global bookmarks
+    for i, elem in enumerate(bookmarks):
+        if elem == bookmark:
+            del bookmarks[i]
+    update.message.reply_text(f"Закладка {bookmark['name']} успешно удалена")
+
+
 def stream(update, context):
     """
     main handler for messages
@@ -199,6 +207,8 @@ def stream(update, context):
         bookmarks.append(search_result)
         update.message.reply_text(f'{search_result["name"]} добавлен в закладки')
 
+    elif check_stems(stems, KeyWords.delete):
+        delete_bookmark(update, context, search_result)
 
     elif check_stems(stems, KeyWords.bookmarks):
         show_bookmarks(update, context)
