@@ -34,6 +34,7 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
     Print most profit actives per 12 week/month/year/month
     You can set reverse for sorting
     """
+    global content_count_per_page
     if period == '12_monthly_growth':
         grow_period = 'годовой'
     elif period == 'yearly_growth':
@@ -45,7 +46,7 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
 
     most_profit_data = sorted(data.values(), key=lambda x: x[period], reverse=reverse)
     message = ''
-    for i in range(start_index, start_index + 15):
+    for i in range(start_index, start_index + content_count_per_page):
         message += f'{i + 1} "{most_profit_data[i]["name"]}" {grow_period} рост: {most_profit_data[i][period]}\n'
 
     update.message.reply_text(message)
@@ -73,7 +74,7 @@ def search_by_company_name(update: Update, context: CallbackContext, company_nam
               f"Рост с начала года: {search_result['yearly_growth']}%\n" \
               f"Рост за 12 месяцев: {search_result['12_monthly_growth']}%\n" \
               f"Объем акций: {search_result['volume']}руб\n" \
-              f"Изменение объема за год: {search_result['delta_volume']}%\n" \
+              f"Изменение объема за год: {search_result['delta_volume']}%\n"
 
     update.message.reply_text(message)
 
@@ -83,6 +84,12 @@ def refresh_data(update: Update, context: CallbackContext):
     update.message.reply_text(f"Данные будут обновляться примерно 5 секунд")
     data = get_data()
     update.message.reply_text(f"Данные обновлены {datetime.datetime.today()}")
+
+
+def set_content_count_per_page(update: Update, context: CallbackContext, count):
+    global content_count_per_page
+    content_count_per_page = count
+    update.message.reply_text(f"Установлено кол-во просматриваемых акций в одном сообщении равное {count}")
 
 
 def stream(update, context):
@@ -126,13 +133,18 @@ def stream(update, context):
                 if get_stems(word)[0] not in KeyWords.search:
                     search_by_company_name(update, context, word.upper())
 
-    # refresh data
     elif check_stems(stems, KeyWords.refresh):
+        """refresh data """
         refresh_data(update, context)
+
+    elif check_stems(stems, KeyWords.set_content_count):
+        """set content count per page"""
+        for word in update.message.text.split():
+            if word.isdigit():
+                set_content_count_per_page(update, context, int(word))
 
 
 def main() -> None:
-
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
