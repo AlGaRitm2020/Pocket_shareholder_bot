@@ -50,6 +50,9 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True, perio
         (update.message.reply_text(
             f'{i + 1} "{most_profit_data[i][3]}" {grow_period} рост: {most_profit_data[i][sort_index]}'))
 
+# def search_by_company_name(update: Update, context: CallbackContext, company_name):
+#     suffixes = ['']
+
 
 def stream(update, context):
 

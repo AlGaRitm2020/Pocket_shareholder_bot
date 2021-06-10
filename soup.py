@@ -13,7 +13,7 @@ def get_data():
     for i, tr in enumerate(tr_list):
         if 1 < i < 260:
             company_name = tr.text.split('\n')[3]
-            data[company_name] = [elem for i, elem in enumerate(tr.text.split('\n'))]
+            data[company_name.upper()] = [elem for i, elem in enumerate(tr.text.split('\n'))]
 
     for i, company_name in enumerate(data):
         if len(data[company_name]) == 28:
@@ -34,4 +34,4 @@ def get_data():
     return data
 
 
-# pprint(get_data())
+pprint(get_data())
