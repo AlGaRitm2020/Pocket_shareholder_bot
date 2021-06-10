@@ -52,6 +52,21 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
     update.message.reply_text(message)
 
 
+def sort_by_volume(update: Update, context: CallbackContext, reverse=True, start_index=0):
+    """
+    Print most profit actives per 12 week/month/year/month
+    You can set reverse for sorting
+    """
+    global content_count_per_page
+
+    sorted_data = sorted(data.values(), key=lambda x: x['volume'], reverse=reverse)
+    message = ''
+    for i in range(start_index, start_index + content_count_per_page):
+        message += f'{i + 1} "{sorted_data[i]["name"]}" объем акций: {sorted_data[i]["volume"]}млн руб, рост объема:{sorted_data[i]["delta_volume"]}% в год \n'
+
+    update.message.reply_text(message)
+
+
 def search_by_company_name(update: Update, context: CallbackContext, company_name):
     """
     This function print all information about any company by name
@@ -185,7 +200,10 @@ def stream(update, context):
     reverse_gl = True
     if check_stems(stems, KeyWords.increase):
         reverse_gl = False
-    if check_stems(stems, KeyWords.profit):
+    if check_stems(stems, KeyWords.volume):
+        start_index_gl = 0
+        sort_by_volume(update, context, reverse=reverse_gl, start_index=start_index_gl)
+    elif check_stems(stems, KeyWords.profit):
         start_index_gl = 0
         if check_stems(stems, KeyWords.week):
             period_gl = 'weekly_growth'
