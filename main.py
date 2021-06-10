@@ -73,12 +73,13 @@ def search_by_company_name(update: Update, context: CallbackContext, company_nam
               f"Рост за 12 месяцев: {search_result['12_monthly_growth']}%\n" \
               f"Объем акций: {search_result['volume']}руб\n" \
               f"Изменение объема за год: {search_result['delta_volume']}%\n" \
- \
+
     update.message.reply_text(message)
 
 
-def refresh_data(update: Update, context: CallbackContext, company_name):
+def refresh_data(update: Update, context: CallbackContext):
     global data
+    update.message.reply_text(f"Данные будут обновляться примерно 5 секунд")
     data = get_data()
     update.message.reply_text(f"Данные обновлены {datetime.datetime.today()}")
 
@@ -123,6 +124,10 @@ def stream(update, context):
             for word in update.message.text.split():
                 if get_stems(word)[0] not in KeyWords.search:
                     search_by_company_name(update, context, word.upper())
+
+    # refresh data
+    if check_stems(stems, KeyWords.refresh):
+        refresh_data(update, context)
 
 
 def main() -> None:
