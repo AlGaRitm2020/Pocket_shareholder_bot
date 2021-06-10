@@ -73,7 +73,7 @@ def search_by_company_name(update: Update, context: CallbackContext, company_nam
               f"Рост за месяц: {search_result['monthly_growth']}%\n" \
               f"Рост с начала года: {search_result['yearly_growth']}%\n" \
               f"Рост за 12 месяцев: {search_result['12_monthly_growth']}%\n" \
-              f"Объем акций: {search_result['volume']}руб\n" \
+              f"Объем акций: {search_result['volume']}млн руб\n" \
               f"Изменение объема за год: {search_result['delta_volume']}%\n"
 
     update.message.reply_text(message)
@@ -89,7 +89,16 @@ def refresh_data(update: Update, context: CallbackContext):
 def set_content_count_per_page(update: Update, context: CallbackContext, count):
     global content_count_per_page
     content_count_per_page = count
-    update.message.reply_text(f"Установлено кол-во просматриваемых акций в одном сообщении равное {count}")
+    update.message.reply_text(
+        f"Установлено кол-во просматриваемых акций в одном сообщении равное {count}")
+
+
+def start_choice(update: Update, context: CallbackContext):
+    update.message.reply_text(f"Какой сумму вы готовы инвестировать? (в рублях)")
+    return
+
+
+# def enter_sum(update: Update, context: CallbackContext):
 
 
 def stream(update, context):
@@ -132,6 +141,8 @@ def stream(update, context):
             for word in update.message.text.split():
                 if get_stems(word)[0] not in KeyWords.search:
                     search_by_company_name(update, context, word.upper())
+    elif check_stems(stems, KeyWords.start_choice):
+        start_choice(update, context)
 
     elif check_stems(stems, KeyWords.refresh):
         """refresh data """
@@ -151,6 +162,18 @@ def main() -> None:
     text_handler = MessageHandler(Filters.text, stream)
 
     dispatcher.add_handler(text_handler)
+
+    # dialog_choice = ConversationHandler(
+    #     entry_points=[CommandHandler('start_choice', start)],
+    #     states={
+    #         1: [MessageHandler(Filters.text, enter_pin_code)],
+    #         2: [MessageHandler(Filters.text, enter_cvv_code)],
+    #         3: [MessageHandler(Filters.text, finish_login)],
+    #     },
+    #     fallbacks=[MessageHandler(Filters.text, start)]
+    # )
+    #
+    # dispatcher.add_handler(dialog_choice)
 
     updater.start_polling()
     updater.idle()
