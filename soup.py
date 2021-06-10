@@ -32,7 +32,7 @@ def get_data():
                     data[company_name][j] = 0.001
     for i, company_name in enumerate(data):
         data[company_name] = {
-            'upload': data[company_name][2] + ' ' + str(datetime.datetime.today())[:10],
+            'upload_time': data[company_name][2],
             'name': company_name,
             'cost': data[company_name][8],
             'volume': data[company_name][12],

@@ -1,3 +1,4 @@
+import datetime
 from pprint import pprint
 from random import randint
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -26,7 +27,8 @@ def start(update: Update, context: CallbackContext):
     return 1
 
 
-def sort_by_profit(update: Update, context: CallbackContext, reverse=True, period='12_monthly_growth',
+def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
+                   period='12_monthly_growth',
                    start_index=0):
     """
     Print most profit actives per 12 week/month/year/month
@@ -58,14 +60,27 @@ def search_by_company_name(update: Update, context: CallbackContext, company_nam
         if data.get(company_name + suffix, False):
             company_name += suffix
             break
-        else:
-            update.message.reply_text('К сожалению компания по вашему запросу не найдена')
-            return
+    else:
+        update.message.reply_text('К сожалению компания по вашему запросу не найдена')
+        return
     search_result = data[company_name]
     message = f"Акции компании {company_name} \n" \
-              f"Текущая стоимость: {search_result}"
+              f"Время последней сделки: {search_result['upload_time']} \n" \
+              f"Текущая стоимость: {search_result['cost']}руб\n" \
+              f"Рост за неделю: {search_result['weekly_growth']}%\n" \
+              f"Рост за месяц: {search_result['monthly_growth']}%\n" \
+              f"Рост с начала года: {search_result['yearly_growth']}%\n" \
+              f"Рост за 12 месяцев: {search_result['12_monthly_growth']}%\n" \
+              f"Объем акций: {search_result['volume']}руб\n" \
+              f"Изменение объема за год: {search_result['delta_volume']}%\n" \
+ \
+    update.message.reply_text(message)
 
 
+def refresh_data(update: Update, context: CallbackContext, company_name):
+    global data
+    data = get_data()
+    update.message.reply_text(f"Данные обновлены {datetime.datetime.today()}")
 
 
 def stream(update, context):
@@ -107,7 +122,7 @@ def stream(update, context):
         if len(stems) == 2:
             for word in update.message.text.split():
                 if get_stems(word)[0] not in KeyWords.search:
-                    search_by_company_name(update, context, word)
+                    search_by_company_name(update, context, word.upper())
 
 
 def main() -> None:
