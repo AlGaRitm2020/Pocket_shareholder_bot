@@ -99,16 +99,52 @@ def start_choice(update: Update, context: CallbackContext):
 
 def ask_about_sum(update: Update, context: CallbackContext):
     update.message.reply_text(f"Какой сумму вы готовы инвестировать? (в рублях)")
+    print(12)
     return 2
 
 
 def enter_sum(update: Update, context: CallbackContext):
+    global summ
     summ = update.message.text
-    print(summ)
     if not summ.isdigit():
         update.message.reply_text(f"Сумма должна быть в виде целого числа")
         return 1
+    update.message.reply_text(
+        f"Какой минимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
     return 3
+
+
+def enter_min_growth(update: Update, context: CallbackContext):
+    global min_growth
+    min_growth = update.message.text
+    stems = get_stems(min_growth)
+    if check_stems(stems, KeyWords.skip):
+        min_growth = -100
+        return 4
+    elif min_growth.isdigit():
+        min_growth = int(min_growth)
+        update.message.reply_text(
+            f"Какой максимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
+        return 4
+    else:
+        update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
+        return 1
+
+def enter_max_growth(update: Update, context: CallbackContext):
+    global min_growth
+    min_growth = update.message.text
+    stems = get_stems(min_growth)
+    if check_stems(stems, KeyWords.skip):
+        min_growth = -100
+        return 4
+    elif min_growth.isdigit():
+        min_growth = int(min_growth)
+        update.message.reply_text(
+            f"Какой максимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
+        return 4
+    else:
+        update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
+        return 1
 
 
 def stream(update, context):
@@ -169,13 +205,13 @@ def main() -> None:
     updater = Updater(TOKEN)
     dispatcher = updater.dispatcher
 
-
-
     dialog_choice = ConversationHandler(
         entry_points=[CommandHandler('start_choice', start_choice)],
         states={
             1: [MessageHandler(Filters.text, ask_about_sum)],
             2: [MessageHandler(Filters.text, enter_sum)],
+            3: [MessageHandler(Filters.text, enter_min_growth)],
+            4: [MessageHandler(Filters.text, enter_max_growth)],
 
         },
         fallbacks=[MessageHandler(Filters.text, start)]
