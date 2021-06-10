@@ -55,7 +55,7 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
 
 def sort_by_volume(update: Update, context: CallbackContext, reverse=True, start_index=0):
     """
-    Print most profit actives per 12 week/month/year/month
+    Print most volume actives
     You can set reverse for sorting
     """
     global content_count_per_page
@@ -182,7 +182,19 @@ def enter_min_volume(update: Update, context: CallbackContext):
 
 def choice_result(update: Update, context: CallbackContext, summ, min_growth, max_growth, min_volume, max_volume):
     update.message.reply_text(f"Choice result")
-
+    global content_count_per_page
+    print(list(data.values())[0])
+    filtered_data = [active for active in list(data.values())
+                     if int(max_growth) >= active['12_monthly_growth'] >= int(min_growth)
+                     and int(max_volume) >= active['volume'] >= int(min_volume)
+                     and active['cost'] <= int(summ)]
+    print(filtered_data)
+    # sorted_data = sorted(data.values(), key=lambda x: x['volume'])
+    # message = ''
+    # for i in range(start_index, start_index + content_count_per_page):
+    #     message += f'{i + 1} "{sorted_data[i]["name"]}" объем акций: {sorted_data[i]["volume"]}млн руб, рост объема:{sorted_data[i]["delta_volume"]}% в год \n'
+    #
+    # update.message.reply_text(message)
 
 def enter_max_volume(update: Update, context: CallbackContext):
     global summ, max_volume, min_volume, max_growth, min_growth
