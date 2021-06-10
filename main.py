@@ -26,7 +26,8 @@ def start(update: Update, context: CallbackContext):
     return 1
 
 
-def sort_by_profit(update: Update, context: CallbackContext, reverse=True, period='12 month', start_index=0):
+def sort_by_profit(update: Update, context: CallbackContext, reverse=True, period='12 month',
+                   start_index=0):
     """
     Print most profit actives per 12 week/month/year/month
     You can set reverse for sorting
@@ -50,12 +51,28 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True, perio
         (update.message.reply_text(
             f'{i + 1} "{most_profit_data[i][3]}" {grow_period} рост: {most_profit_data[i][sort_index]}'))
 
-# def search_by_company_name(update: Update, context: CallbackContext, company_name):
-#     suffixes = ['']
+
+def search_by_company_name(update: Update, context: CallbackContext, company_name):
+    """
+    This function print all information about any company by name
+
+    """
+    suffixes = ["", ' АО', '-АО', '. АО', ' АП', "-ГДР", "-П", " ЗАП", " ЗАО"]
+    for suffix in suffixes:
+        if data.get(company_name + suffix, False):
+            company_name += suffix
+            break
+        else:
+            update.message.reply_text('К сожалению компания по вашему запросу не найдена')
+            return
+    search_result = data[company_name]
+    message = f"Акции компании {company_name} \n" \
+              f"Текущая стоимость: {search_result}"
+
+
 
 
 def stream(update, context):
-
     """
     main handler for messages
     checking keywords in message
@@ -65,6 +82,8 @@ def stream(update, context):
     content_count_per_page = 15
     stems = get_stems(update.message.text)
     print(stems)
+
+    # sorting by profit
     global period_gl, start_index_gl, reverse_gl
     reverse_gl = True
     if check_stems(stems, KeyWords.increase):
@@ -80,11 +99,19 @@ def stream(update, context):
         else:
             period_gl = '12 month'
 
-        sort_by_profit(update, context, reverse=reverse_gl, period=period_gl, start_index=start_index_gl)
+        sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
+                       start_index=start_index_gl)
     elif check_stems(stems, KeyWords.extra_content):
         start_index_gl += content_count_per_page
         sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
                        start_index=start_index_gl)
+
+    # searching by company name
+    if check_stems(stems, KeyWords.search):
+        if len(stems) == 2:
+            for word in update.message.text.split():
+                if get_stems(word)[0] not in KeyWords.search:
+                    search_by_company_name(update, context, word)
 
 
 def main() -> None:
