@@ -5,7 +5,6 @@ from get_html import get_html
 
 def get_data():
     URL = 'https://smart-lab.ru/q/shares/'
-
     src = get_html(URL)
     soup = BeautifulSoup(src, 'lxml')
     tr_list = soup.find(class_='simple-little-table trades-table').find_all('tr')

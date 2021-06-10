@@ -65,6 +65,8 @@ def search_by_company_name(update: Update, context: CallbackContext, company_nam
     else:
         update.message.reply_text('К сожалению компания по вашему запросу не найдена')
         return
+
+    global search_result
     search_result = data[company_name]
     message = f"Акции компании {company_name} \n" \
               f"Время последней сделки: {search_result['upload_time']} \n" \
@@ -130,6 +132,7 @@ def enter_min_growth(update: Update, context: CallbackContext):
         update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
         return 1
 
+
 def enter_max_growth(update: Update, context: CallbackContext):
     global min_growth
     min_growth = update.message.text
@@ -147,6 +150,16 @@ def enter_max_growth(update: Update, context: CallbackContext):
         return 1
 
 
+def show_bookmarks(update: Update, context: CallbackContext):
+    global bookmarks
+    message = "Закладки:\n"
+    if not bookmarks:
+        message += 'Здесь пока пусто'
+    for i, bookmark in enumerate(bookmarks):
+        message += f"{i + 1}. {bookmark['name']} стоимость: {bookmark['cost']}рублей\n"
+    update.message.reply_text(message)
+
+
 def stream(update, context):
     """
     main handler for messages
@@ -160,6 +173,7 @@ def stream(update, context):
 
     # sorting by profit
     global period_gl, start_index_gl, reverse_gl
+    global search_result, bookmarks
     reverse_gl = True
     if check_stems(stems, KeyWords.increase):
         reverse_gl = False
@@ -181,6 +195,14 @@ def stream(update, context):
         sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
                        start_index=start_index_gl)
 
+    elif check_stems(stems, KeyWords.save):
+        bookmarks.append(search_result)
+        update.message.reply_text(f'{search_result["name"]} добавлен в закладки')
+
+
+    elif check_stems(stems, KeyWords.bookmarks):
+        show_bookmarks(update, context)
+
     # searching by company name
     elif check_stems(stems, KeyWords.search):
         if len(stems) == 2:
@@ -191,7 +213,7 @@ def stream(update, context):
         start_choice(update, context)
 
     elif check_stems(stems, KeyWords.refresh):
-        """refresh data """
+        """refresh data"""
         refresh_data(update, context)
 
     elif check_stems(stems, KeyWords.set_content_count):
@@ -228,5 +250,6 @@ def main() -> None:
 
 if __name__ == '__main__':
     data = get_data()
+    bookmarks = []
     content_count_per_page = 15
     main()
