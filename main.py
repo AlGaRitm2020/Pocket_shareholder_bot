@@ -190,12 +190,13 @@ def choice_result(update: Update, context: CallbackContext, summ, min_growth, ma
                      and active['cost'] <= int(summ)]
 
     sorted_data = sorted(filtered_data, key=lambda x: x['12_monthly_growth'], reverse=True)
-    message = ''
+    message = 'Наиболее подходящие для вас акции:\n'
     for i in range(start_index, start_index + content_count_per_page):
         message += f'{i + 1} "{sorted_data[i]["name"]}" объем акций: {sorted_data[i]["volume"]}млн руб,' \
                    f' годовой рост:{sorted_data[i]["12_monthly_growth"]}% \n'
 
     update.message.reply_text(message)
+    start_index += content_count_per_page
 
 
 def enter_max_volume(update: Update, context: CallbackContext):
@@ -266,7 +267,7 @@ def stream(update, context):
         sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
                        start_index=start_index_gl)
     elif check_stems(stems, KeyWords.extra_content):
-
+        global last_function
         sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
                        start_index=start_index_gl)
 
