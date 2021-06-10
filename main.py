@@ -1,3 +1,4 @@
+from pprint import pprint
 from random import randint
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, \
@@ -43,7 +44,8 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True, perio
         sort_index = 13
         grow_period = 'недельный'
 
-    most_profit_data = sorted(data, key=lambda x: x[sort_index], reverse=reverse)
+    most_profit_data = sorted(data.values(), key=lambda x: x[sort_index], reverse=reverse)
+
     for i in range(start_index, start_index + 15):
         (update.message.reply_text(
             f'{i + 1} "{most_profit_data[i][3]}" {grow_period} рост: {most_profit_data[i][sort_index]}'))
