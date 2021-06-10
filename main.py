@@ -1,4 +1,5 @@
 import datetime
+
 from pprint import pprint
 from random import randint
 from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -24,7 +25,6 @@ def start(update: Update, context: CallbackContext):
                               'и сортировать акции по доходности на разные временные интервалы и по объему.'
                               'Кроме этого я могу искать акцию конкретной компании и сохранять ее в закладки.'
                               )
-
 
     return
 
@@ -131,7 +131,7 @@ def enter_sum(update: Update, context: CallbackContext):
     summ = update.message.text
     if not summ.isdigit():
         update.message.reply_text(f"Сумма должна быть в виде целого числа")
-        return 1
+        return 2
     update.message.reply_text(
         f"Какой минимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
     return 3
@@ -142,33 +142,50 @@ def enter_min_growth(update: Update, context: CallbackContext):
     min_growth = update.message.text
     stems = get_stems(min_growth)
     if check_stems(stems, KeyWords.skip):
-        min_growth = -100
-        return 4
-    elif min_growth.isdigit():
-        min_growth = int(min_growth)
-        update.message.reply_text(
-            f"Какой максимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
-        return 4
-    else:
+        min_growth = str(-100)
+    elif not min_growth.isdigit():
         update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
         return 1
+
+    update.message.reply_text(
+        f"Какой максимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
+    return 4
 
 
 def enter_max_growth(update: Update, context: CallbackContext):
-    global min_growth
-    min_growth = update.message.text
-    stems = get_stems(min_growth)
+    global max_growth
+    max_growth = update.message.text
+    stems = get_stems(max_growth)
     if check_stems(stems, KeyWords.skip):
-        min_growth = -100
-        return 4
-    elif min_growth.isdigit():
-        min_growth = int(min_growth)
-        update.message.reply_text(
-            f"Какой максимальный годовой рост должен быть у компании в которую вы будете инвестировать?")
-        return 4
-    else:
+        max_growth = float('inf')
+
+    elif not max_growth.isdigit():
+        min_growth = int(max_growth)
         update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
-        return 1
+        return 2
+
+    update.message.reply_text(
+        f"Какой минимальный объем акций должен быть у компании в которую вы будете инвестировать? (млн руб)")
+    return 5
+
+
+def enter_min_volume(update: Update, context: CallbackContext):
+    global min_volume
+    min_volume = update.message.text
+    stems = get_stems(min_volume)
+    if check_stems(stems, KeyWords.skip):
+        min_volume = float('inf')
+
+    elif not max_growth.isdigit():
+        update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
+        return 2
+
+    update.message.reply_text(
+        f"Какой минимальный объем акций должен быть у компании в которую вы будете инвестировать? (млн руб)")
+    return 5
+
+
+
 
 
 def show_bookmarks(update: Update, context: CallbackContext):
@@ -270,6 +287,7 @@ def main() -> None:
             2: [MessageHandler(Filters.text, enter_sum)],
             3: [MessageHandler(Filters.text, enter_min_growth)],
             4: [MessageHandler(Filters.text, enter_max_growth)],
+            5: [MessageHandler(Filters.text, enter_min_volume)],
 
         },
         fallbacks=[MessageHandler(Filters.text, start)]
