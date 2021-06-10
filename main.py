@@ -26,30 +26,26 @@ def start(update: Update, context: CallbackContext):
     return 1
 
 
-def sort_by_profit(update: Update, context: CallbackContext, reverse=True, period='12 month',
+def sort_by_profit(update: Update, context: CallbackContext, reverse=True, period='12_monthly_growth',
                    start_index=0):
     """
     Print most profit actives per 12 week/month/year/month
     You can set reverse for sorting
     """
-    if period == '12 month':
-        sort_index = 16
+    if period == '12_monthly_growth':
         grow_period = 'годовой'
-    elif period == 'year':
-        sort_index = 15
+    elif period == 'yearly_growth':
         grow_period = 'с начала года'
-    elif period == 'month':
-        sort_index = 14
+    elif period == 'monthly_growth':
         grow_period = 'месячный'
     else:
-        sort_index = 13
         grow_period = 'недельный'
 
-    most_profit_data = sorted(data.values(), key=lambda x: x[sort_index], reverse=reverse)
+    most_profit_data = sorted(data.values(), key=lambda x: x[period], reverse=reverse)
 
     for i in range(start_index, start_index + 15):
         (update.message.reply_text(
-            f'{i + 1} "{most_profit_data[i][3]}" {grow_period} рост: {most_profit_data[i][sort_index]}'))
+            f'{i + 1} "{most_profit_data[i]["name"]}" {grow_period} рост: {most_profit_data[i][period]}'))
 
 
 def search_by_company_name(update: Update, context: CallbackContext, company_name):
@@ -91,13 +87,13 @@ def stream(update, context):
     if check_stems(stems, KeyWords.profit):
         start_index_gl = 0
         if check_stems(stems, KeyWords.week):
-            period_gl = 'week'
+            period_gl = 'weekly_growth'
         elif check_stems(stems, KeyWords.month):
-            period_gl = 'month'
+            period_gl = 'monthly_growth'
         elif check_stems(stems, KeyWords.year):
-            period_gl = 'year'
+            period_gl = 'yearly_growth'
         else:
-            period_gl = '12 month'
+            period_gl = '12_monthly_growth'
 
         sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
                        start_index=start_index_gl)

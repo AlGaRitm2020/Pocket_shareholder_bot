@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 from pprint import pprint
 from get_html import get_html
-
+import datetime
 
 def get_data():
     URL = 'https://smart-lab.ru/q/shares/'
@@ -20,7 +20,7 @@ def get_data():
             for _ in range(4):
                 del data[company_name][5]
         for j, elem in enumerate(data[company_name]):
-            to_float_list = [8, 13, 14, 15, 16, 17, 18, 19, 20]
+            to_float_list = [8, 12, 13, 14, 15, 16, 17, 18, 19, 20]
             if j in to_float_list:
                 if elem and '\t' not in elem:
                     try:
@@ -30,7 +30,19 @@ def get_data():
                         data[company_name][j] = int(elem)
                 else:
                     data[company_name][j] = 0.001
+    for i, company_name in enumerate(data):
+        data[company_name] = {
+            'upload': data[company_name][2] + ' ' + str(datetime.datetime.today())[:10],
+            'name': company_name,
+            'cost': data[company_name][8],
+            'volume': data[company_name][12],
+            'weekly_growth': data[company_name][13],
+            'monthly_growth': data[company_name][14],
+            'yearly_growth': data[company_name][15],
+            '12_monthly_growth': data[company_name][16],
+            'delta_volume': data[company_name][19],
 
+        }
     return data
 
 
