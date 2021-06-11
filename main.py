@@ -77,6 +77,27 @@ def sort_by_volume(update: Update, context: CallbackContext, reverse=True, start
     global last_function
     last_function = 'volume'
 
+def sort_by_volume(update: Update, context: CallbackContext, reverse=True, start_index=0):
+    """
+    Print most volume actives
+    You can set reverse for sorting
+    """
+    global content_count_per_page
+
+    sorted_data = sorted(data.values(), key=lambda x: x['volume'], reverse=reverse)
+    message = ''
+    if start_index + content_count_per_page > 250:
+        content_count_per_page = 250 - start_index
+    for i in range(start_index, start_index + content_count_per_page):
+        message += f'{i + 1} "{sorted_data[i]["name"]}" объем акций: {sorted_data[i]["volume"]}млн руб, рост объема:{sorted_data[i]["delta_volume"]}% в год \n'
+
+    update.message.reply_text(message)
+    global start_index_gl
+    start_index_gl += content_count_per_page
+
+    global last_function
+    last_function = 'volume'
+
 
 def search_by_company_name(update: Update, context: CallbackContext, company_name):
     """
@@ -102,7 +123,8 @@ def search_by_company_name(update: Update, context: CallbackContext, company_nam
               f"Рост с начала года: {search_result['yearly_growth']}%\n" \
               f"Рост за 12 месяцев: {search_result['12_monthly_growth']}%\n" \
               f"Объем акций: {search_result['volume']}млн руб\n" \
-              f"Изменение объема за год: {search_result['delta_volume']}%\n"
+              f"Изменение объема за год: {search_result['delta_volume']}%\n" \
+              f"Капитилизация компании: {search_result['capital']}млрд руб"
 
     update.message.reply_text(message)
 
