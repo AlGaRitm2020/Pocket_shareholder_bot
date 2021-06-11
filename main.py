@@ -56,7 +56,8 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
     last_function = 'profit'
 
 
-def sort_by_volume_or_capital(update: Update, context: CallbackContext, reverse=True, start_index=0, key='volume'):
+def sort_by_volume_or_capital(update: Update, context: CallbackContext, reverse=True, start_index=0,
+                              key='volume'):
     """
     Print most volume actives
     You can set reverse for sorting
@@ -87,8 +88,6 @@ def sort_by_volume_or_capital(update: Update, context: CallbackContext, reverse=
 
     global last_function
     last_function = key
-
-
 
 
 def search_by_company_name(update: Update, context: CallbackContext, company_name):
@@ -208,7 +207,8 @@ def enter_min_volume(update: Update, context: CallbackContext):
     return 6
 
 
-def choice_result(update: Update, context: CallbackContext, summ, min_growth, max_growth, min_volume, max_volume,
+def choice_result(update: Update, context: CallbackContext, summ, min_growth, max_growth, min_volume,
+                  max_volume,
                   start_index=0):
     global content_count_per_page
 
@@ -245,8 +245,10 @@ def enter_max_volume(update: Update, context: CallbackContext):
         update.message.reply_text(f"Максимальный объем должен быть в виде целого числа")
         return 6
 
-    choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume, start_index=start_index_gl)
+    choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume,
+                  start_index=start_index_gl)
     return ConversationHandler.END
+
 
 def show_bookmarks(update: Update, context: CallbackContext):
     global bookmarks
@@ -311,11 +313,16 @@ def stream(update, context):
         global summ, min_growth, max_growth, min_volume, max_volumes
         if last_function == 'profit':
             sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
-                        start_index=start_index_gl)
+                           start_index=start_index_gl)
         elif last_function == 'volume':
-            sort_by_volume(update, context, reverse=reverse_gl, start_index=start_index_gl)
+            sort_by_volume_or_capital(update, context, reverse=reverse_gl,
+                                      start_index=start_index_gl, key='volume')
+        elif last_function == 'capital':
+            sort_by_volume_or_capital(update, context, reverse=reverse_gl,
+                                      start_index=start_index_gl, key='capital')
         elif last_function == 'choice':
-            choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume, start_index=start_index_gl)
+            choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume,
+                          start_index=start_index_gl)
     elif check_stems(stems, KeyWords.save):
         bookmarks.append(search_result)
         update.message.reply_text(f'{search_result["name"]} добавлен в закладки')
