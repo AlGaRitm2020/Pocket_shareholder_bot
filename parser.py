@@ -29,6 +29,7 @@ def get_data():
                         data[company_name][j] = int(elem)
                 else:
                     data[company_name][j] = 0.001
+
     for i, company_name in enumerate(data):
         data[company_name] = {
             'upload_time': data[company_name][2],
@@ -40,9 +41,11 @@ def get_data():
             'yearly_growth': data[company_name][15],
             '12_monthly_growth': data[company_name][16],
             'delta_volume': data[company_name][19],
+            'capital': data[company_name][17],
 
         }
+    pprint(data)
     return data
 
 
-pprint(get_data())
+get_data()

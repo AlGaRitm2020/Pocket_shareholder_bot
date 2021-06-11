@@ -10,7 +10,7 @@ from config import TOKEN
 from key_words import KeyWords
 from nlp import check_stems, get_stems
 
-from soup import get_data
+from parser import get_data
 
 
 def start(update: Update, context: CallbackContext):
