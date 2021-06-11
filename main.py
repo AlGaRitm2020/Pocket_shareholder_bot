@@ -42,7 +42,12 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
         grow_period = 'недельный'
 
     most_profit_data = sorted(data.values(), key=lambda x: x[period], reverse=reverse)
-    message = ''
+    message = 'Сортировка по доходности акций '
+    if reverse:
+        message += '(по убыванию)\n'
+    else:
+        message += '(по возрастанию)\n'
+
     if start_index + content_count_per_page > 250:
         content_count_per_page = 250 - start_index
     for i in range(start_index, start_index + content_count_per_page):
@@ -164,7 +169,7 @@ def enter_min_growth(update: Update, context: CallbackContext):
     min_growth = update.message.text
     stems = get_stems(min_growth)
     if check_stems(stems, KeyWords.skip):
-        min_growth = str(-100)
+        min_growth = -10*11
     elif not min_growth.isdigit():
         update.message.reply_text(f"Минимальный годовой рост должен быть в виде целого числа")
         return 3
@@ -179,7 +184,7 @@ def enter_max_growth(update: Update, context: CallbackContext):
     max_growth = update.message.text
     stems = get_stems(max_growth)
     if check_stems(stems, KeyWords.skip):
-        max_growth = float('inf')
+        max_growth = 10**10
 
     elif not max_growth.isdigit():
 
@@ -196,7 +201,7 @@ def enter_min_volume(update: Update, context: CallbackContext):
     min_volume = update.message.text
     stems = get_stems(min_volume)
     if check_stems(stems, KeyWords.skip):
-        min_volume = float('inf')
+        min_volume = 0
 
     elif not min_volume.isdigit():
         update.message.reply_text(f"Минимальный объем должен быть в виде целого числа")
@@ -211,7 +216,7 @@ def choice_result(update: Update, context: CallbackContext, summ, min_growth, ma
                   max_volume,
                   start_index=0):
     global content_count_per_page
-
+    global start_index_gl
     filtered_data = [active for active in list(data.values())
                      if int(max_growth) >= active['12_monthly_growth'] >= int(min_growth)
                      and int(max_volume) >= active['volume'] >= int(min_volume)
@@ -227,7 +232,7 @@ def choice_result(update: Update, context: CallbackContext, summ, min_growth, ma
     if len(sorted_data) == 0:
         message += f'Больше подходящих для вас акций нет'
     update.message.reply_text(message)
-    global start_index_gl
+
     start_index_gl += content_count_per_page
 
     global last_function
@@ -235,11 +240,11 @@ def choice_result(update: Update, context: CallbackContext, summ, min_growth, ma
 
 
 def enter_max_volume(update: Update, context: CallbackContext):
-    global summ, max_volume, min_volume, max_growth, min_growth
+    global summ, max_volume, min_volume, max_growth, min_growth, start_index_gl
     max_volume = update.message.text
     stems = get_stems(max_volume)
     if check_stems(stems, KeyWords.skip):
-        max_volume = float('inf')
+        max_volume = 10**10
 
     elif not max_volume.isdigit():
         update.message.reply_text(f"Максимальный объем должен быть в виде целого числа")
@@ -388,4 +393,5 @@ if __name__ == '__main__':
     data = get_data()
     bookmarks = []
     content_count_per_page = 15
+    start_index_gl = 0
     main()
