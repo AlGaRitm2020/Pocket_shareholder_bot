@@ -346,10 +346,8 @@ def stream(update, context):
                     search_by_company_name(update, context, word.upper())
     elif check_stems(stems, KeyWords.start_choice):
         start_index_gl = 0
-        reply_keyboard = [['/start_choice']]
-        markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
-        update.message.reply_text('Чтобы начать подбор подходящих акций нажмите /start_choice',
-                                  reply_markup=markup)
+
+        update.message.reply_text('Чтобы начать подбор подходящих акций нажмите /start_choice')
 
     elif check_stems(stems, KeyWords.refresh):
         """refresh data"""
@@ -360,6 +358,10 @@ def stream(update, context):
         for word in update.message.text.split():
             if word.isdigit():
                 set_content_count_per_page(update, context, int(word))
+    else:
+        update.message.reply_text('К сожалению я вас не понял\n'
+                                  'Прочитайте документацию по ссылке\n'
+                                  'https://github.com/AlGaRitm2020/Pocket_shareholder_bot/blob/master/README.md')
 
 
 def main() -> None:
