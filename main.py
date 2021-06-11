@@ -10,7 +10,7 @@ from config import TOKEN
 from key_words import KeyWords
 from nlp import check_stems, get_stems
 
-from parser import get_data
+from soup import get_data
 
 
 def start(update: Update, context: CallbackContext):
@@ -51,7 +51,7 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
     if start_index + content_count_per_page > 250:
         content_count_per_page = 250 - start_index
     for i in range(start_index, start_index + content_count_per_page):
-        message += f'{i + 1} "{most_profit_data[i]["name"]}" {grow_period} рост: {most_profit_data[i][period]}\n'
+        message += f'{i + 1} "{most_profit_data[i]["name"]}" {grow_period} рост: {most_profit_data[i][period]}%\n'
 
     global start_index_gl
     start_index_gl += content_count_per_page
@@ -377,6 +377,7 @@ def main() -> None:
             4: [MessageHandler(Filters.text, enter_max_growth)],
             5: [MessageHandler(Filters.text, enter_min_volume)],
             6: [MessageHandler(Filters.text, enter_max_volume)],
+
 
         },
         fallbacks=[MessageHandler(Filters.text, start)]
