@@ -52,6 +52,9 @@ def sort_by_profit(update: Update, context: CallbackContext, reverse=True,
     start_index_gl += content_count_per_page
     update.message.reply_text(message)
 
+    global last_function
+    last_function = 'profit'
+
 
 def sort_by_volume(update: Update, context: CallbackContext, reverse=True, start_index=0):
     """
@@ -62,10 +65,17 @@ def sort_by_volume(update: Update, context: CallbackContext, reverse=True, start
 
     sorted_data = sorted(data.values(), key=lambda x: x['volume'], reverse=reverse)
     message = ''
+    if start_index + content_count_per_page > 250:
+        content_count_per_page = 250 - start_index
     for i in range(start_index, start_index + content_count_per_page):
         message += f'{i + 1} "{sorted_data[i]["name"]}" объем акций: {sorted_data[i]["volume"]}млн руб, рост объема:{sorted_data[i]["delta_volume"]}% в год \n'
 
     update.message.reply_text(message)
+    global start_index_gl
+    start_index_gl += content_count_per_page
+
+    global last_function
+    last_function = 'volume'
 
 
 def search_by_company_name(update: Update, context: CallbackContext, company_name):
@@ -191,12 +201,19 @@ def choice_result(update: Update, context: CallbackContext, summ, min_growth, ma
 
     sorted_data = sorted(filtered_data, key=lambda x: x['12_monthly_growth'], reverse=True)
     message = 'Наиболее подходящие для вас акции:\n'
+    if start_index + content_count_per_page > len(sorted_data):
+        content_count_per_page = len(sorted_data) - start_index
     for i in range(start_index, start_index + content_count_per_page):
         message += f'{i + 1} "{sorted_data[i]["name"]}" объем акций: {sorted_data[i]["volume"]}млн руб,' \
                    f' годовой рост:{sorted_data[i]["12_monthly_growth"]}% \n'
-
+    if len(sorted_data) == 0:
+        message += f'Больше подходящих для вас акций нет'
     update.message.reply_text(message)
-    start_index += content_count_per_page
+    global start_index_gl
+    start_index_gl += content_count_per_page
+
+    global last_function
+    last_function = 'choice'
 
 
 def enter_max_volume(update: Update, context: CallbackContext):
@@ -210,8 +227,8 @@ def enter_max_volume(update: Update, context: CallbackContext):
         update.message.reply_text(f"Максимальный объем должен быть в виде целого числа")
         return 6
 
-    choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume)
-
+    choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume, start_index=start_index_gl)
+    return ConversationHandler.END
 
 def show_bookmarks(update: Update, context: CallbackContext):
     global bookmarks
@@ -268,9 +285,14 @@ def stream(update, context):
                        start_index=start_index_gl)
     elif check_stems(stems, KeyWords.extra_content):
         global last_function
-        sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
-                       start_index=start_index_gl)
-
+        global summ, min_growth, max_growth, min_volume, max_volumes
+        if last_function == 'profit':
+            sort_by_profit(update, context, reverse=reverse_gl, period=period_gl,
+                        start_index=start_index_gl)
+        elif last_function == 'volume':
+            sort_by_volume(update, context, reverse=reverse_gl, start_index=start_index_gl)
+        elif last_function == 'choice':
+            choice_result(update, context, summ, min_growth, max_growth, min_volume, max_volume, start_index=start_index_gl)
     elif check_stems(stems, KeyWords.save):
         bookmarks.append(search_result)
         update.message.reply_text(f'{search_result["name"]} добавлен в закладки')
@@ -288,7 +310,11 @@ def stream(update, context):
                 if get_stems(word)[0] not in KeyWords.search:
                     search_by_company_name(update, context, word.upper())
     elif check_stems(stems, KeyWords.start_choice):
-        start_choice(update, context)
+        start_index_gl = 0
+        reply_keyboard = [['/start_choice']]
+        markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
+        update.message.reply_text('Чтобы начать подбор подходящих акций нажмите /start_choice',
+                                  reply_markup=markup)
 
     elif check_stems(stems, KeyWords.refresh):
         """refresh data"""
